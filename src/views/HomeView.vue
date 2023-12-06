@@ -1,11 +1,12 @@
 <template>
   <a-layout style="min-height: 100vh; min-width: 1400px">
     <a-layout-sider v-model:collapsed="collapsed" collapsible>
-      <a-menu @click="handleClick" v-model:openKeys="openKeys" v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
+      <a-menu @click="handleClick" v-model:openKeys="openKeys" v-model:selectedKeys="selectedKeys" theme="dark"
+              mode="inline">
         <a-sub-menu key="biz">
           <template #title>
             <span>
-              <AppstoreOutlined />
+              <AppstoreOutlined/>
               <span>业务类型</span>
             </span>
           </template>
@@ -25,7 +26,7 @@
         <a-sub-menu key="log-manage">
           <template #title>
             <span>
-              <DatabaseOutlined />
+              <DatabaseOutlined/>
               <span>日志管理</span>
             </span>
           </template>
@@ -39,7 +40,7 @@
       </a-menu>
     </a-layout-sider>
     <a-layout>
-      <a-layout-header class="content-header" >云网融合资源编排调度</a-layout-header>
+      <a-layout-header class="content-header">云网融合资源编排调度</a-layout-header>
       <a-layout-content style="margin:16px">
         <RouterView/>
       </a-layout-content>
@@ -55,15 +56,16 @@ import {
   FieldTimeOutlined,
   AppstoreOutlined,
   AreaChartOutlined,
-  DatabaseOutlined ,
-CloudServerOutlined
+  DatabaseOutlined,
+  CloudServerOutlined
 } from '@ant-design/icons-vue';
 import { ref } from 'vue';
 
 const collapsed = ref<boolean>(false);
 const openKeys = ref<string[]>(['biz']);
 const selectedKeys = ref<string[]>(['computing']);
-function handleClick(info){
+
+function handleClick(info) {
   console.log(info)
 }
 </script>
@@ -86,5 +88,11 @@ function handleClick(info){
 
 [data-theme='dark'] .site-layout .site-layout-background {
   background: #141414;
+}
+</style>
+
+<style>
+.ant-layout-sider-trigger {
+  position: absolute !important;
 }
 </style>
