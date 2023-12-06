@@ -1,5 +1,5 @@
 <template>
-  <a-layout style="min-height: 100vh">
+  <a-layout style="min-height: 100vh; min-width: 1400px">
     <a-layout-sider v-model:collapsed="collapsed" collapsible>
       <a-menu @click="handleClick" v-model:openKeys="openKeys" v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
         <a-sub-menu key="biz">
