@@ -2,7 +2,7 @@ import axios from 'axios'
 import type { AxiosRequestConfig, AxiosResponse } from 'axios'
 
 const request = axios.create({
-    baseURL: import.meta.env.VITE_GLOB_API_URL,
+    baseURL: 'http://103.205.254.82:9999/',
 })
 
 export interface HttpOption {

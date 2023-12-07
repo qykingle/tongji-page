@@ -1,5 +1,5 @@
 <template>
-  <a-layout style="min-height: 100vh; min-width: 1400px">
+  <a-layout style="min-height: 100vh; min-width: 1860px">
     <a-layout-sider v-model:collapsed="collapsed" collapsible>
       <a-menu @click="handleClick" v-model:openKeys="openKeys" v-model:selectedKeys="selectedKeys" theme="dark"
               mode="inline">
@@ -51,7 +51,7 @@
   </a-layout>
 </template>
 <script lang="ts" setup>
-import { RouterView } from 'vue-router'
+import { RouterView, useRouter } from 'vue-router'
 import {
   FieldTimeOutlined,
   AppstoreOutlined,
@@ -59,11 +59,27 @@ import {
   DatabaseOutlined,
   CloudServerOutlined
 } from '@ant-design/icons-vue';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 const collapsed = ref<boolean>(false);
 const openKeys = ref<string[]>(['biz']);
 const selectedKeys = ref<string[]>(['computing']);
+
+const router = useRouter()
+
+watch(
+    () => router.currentRoute.value.name,
+    (value) => {
+      console.log(value)
+      if (value === 'computing' || value === 'delay') {
+        openKeys.value = ['biz']
+      } else {
+        openKeys.value = ['log-manage']
+      }
+      selectedKeys.value = [value]
+    },
+    {immediate: true},
+)
 
 function handleClick(info) {
   console.log(info)
