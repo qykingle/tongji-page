@@ -2,7 +2,7 @@ import axios from 'axios'
 import type { AxiosRequestConfig, AxiosResponse } from 'axios'
 
 const request = axios.create({
-    baseURL: 'https://103.205.254.82:9999/',
+    baseURL: 'https://81.70.164.10:8750/',
 })
 
 export interface HttpOption {
