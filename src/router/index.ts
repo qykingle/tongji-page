@@ -1,6 +1,10 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import TaskManage from '../views/TaskManage.vue'
 import TaskTypeManage from '../views/TaskTypeManage.vue'
+import ResourceManage from '../views/ResourceManage.vue'
+import ResourceTypeManage from '../views/ResourceTypeManage.vue'
+import AlgorithmDocker from '../views/AlgorithmDocker.vue'
+
 import Log from '../views/Log.vue'
 
 export const routesConfig = [
@@ -35,6 +39,50 @@ export const routesConfig = [
             },
         ],
     },
+    {
+        path: '/resource',
+        name: 'resource',
+        meta: {
+            title: '资源管理',
+            icon: 'icon-task-manage'
+        },
+        children: [
+            {
+                path: '/resource/resourceTypeManage',
+                name: 'resourceTypeManage',
+                component: ResourceTypeManage,
+                meta: {
+                    title: '资源类型',
+                }
+            },
+            {
+                path: '/resource/resourceManage',
+                name: 'resourceManage',
+                component: ResourceManage,
+                meta: {
+                    title: '资源',
+                }
+            },
+        ],
+    },
+    {
+        path: '/algorithm',
+        name: 'algorithm',
+        meta: {
+            title: '算法管理',
+            icon: 'icon-task-manage'
+        },
+        children: [
+            {
+                path: '/algorithm/docker',
+                name: 'algorithmDocker',
+                component: AlgorithmDocker,
+                meta: {
+                    title: '算法部署',
+                }
+            }
+        ],
+    }, 
     {
         path: '/log',
         name: 'log',
