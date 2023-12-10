@@ -1,39 +1,21 @@
 <template>
   <a-layout style="min-height: 100vh;min-width: 1350px">
     <a-layout-sider v-model:collapsed="collapsed" collapsible>
+      <div class="logo" >
+      </div>
       <a-menu @click="handleClick" v-model:openKeys="openKeys" v-model:selectedKeys="selectedKeys" theme="dark"
               mode="inline">
-        <a-sub-menu key="biz">
+        <a-sub-menu v-for="item in removeHomeRoutes"  :key="item.name">
           <template #title>
             <span>
-              <AppstoreOutlined/>
-              <span>业务类型</span>
+               <icon-font v-if="item?.meta?.icon" :type="item?.meta?.icon"/>
+              <span>{{ item?.meta?.title }}</span>
             </span>
           </template>
-          <a-menu-item key="computing">
-            <RouterLink to="/computing">
-              <AreaChartOutlined/>
-              <span>重算力型</span>
-            </RouterLink>
-          </a-menu-item>
-          <a-menu-item key="delay">
-            <RouterLink to="/delay">
-              <FieldTimeOutlined/>
-              <span>时延敏感型</span>
-            </RouterLink>
-          </a-menu-item>
-        </a-sub-menu>
-        <a-sub-menu key="log-manage">
-          <template #title>
-            <span>
-              <DatabaseOutlined/>
-              <span>日志管理</span>
-            </span>
-          </template>
-          <a-menu-item key="log">
-            <RouterLink to="/log">
-              <CloudServerOutlined/>
-              <span>调度日志</span>
+          <a-menu-item v-for="child in item.children" :key="child.name">
+            <RouterLink :to="child.path">
+              <icon-font v-if="child?.meta.icon" :type="child?.meta.icon"/>
+              <span>{{ child.meta?.title }}</span>
             </RouterLink>
           </a-menu-item>
         </a-sub-menu>
@@ -53,30 +35,28 @@
 <script lang="ts" setup>
 import { RouterView, useRouter } from 'vue-router'
 import {
-  FieldTimeOutlined,
-  AppstoreOutlined,
-  AreaChartOutlined,
-  DatabaseOutlined,
-  CloudServerOutlined
+  createFromIconfontCN
 } from '@ant-design/icons-vue';
 import { ref, watch } from 'vue';
+import { routesConfig } from "@/router";
 
 const collapsed = ref<boolean>(false);
-const openKeys = ref<string[]>(['biz']);
-const selectedKeys = ref<string[]>(['computing']);
+const openKeys = ref<string[]>([]);
+const selectedKeys = ref<string[]>([]);
+
+const removeHomeRoutes = routesConfig.filter(item => item.name !== 'home')
 
 const router = useRouter()
+const IconFont = createFromIconfontCN({
+  scriptUrl: '//at.alicdn.com/t/c/font_4366479_nwn7pbrbzjo.js',
+});
 
 watch(
-    () => router.currentRoute.value.name,
+    () => router.currentRoute.value,
     (value) => {
-      console.log(value)
-      if (value === 'computing' || value === 'delay') {
-        openKeys.value = ['biz']
-      } else {
-        openKeys.value = ['log-manage']
-      }
-      selectedKeys.value = [value]
+      const [_, first, second] = value.path.split('/')
+      openKeys.value = [first]
+      selectedKeys.value = [second]
     },
     {immediate: true},
 )
@@ -118,9 +98,8 @@ function handleClick(info) {
   background-color: #1e1f22 !important;
 }
 
-.ant-menu-dark.ant-menu-inline .ant-menu-sub.ant-menu-inline,  .ant-layout-sider-trigger {
+.ant-menu-dark.ant-menu-inline .ant-menu-sub.ant-menu-inline, .ant-layout-sider-trigger {
   background-color: #26272a !important;
 }
-
 
 </style>

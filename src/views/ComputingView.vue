@@ -9,7 +9,7 @@
           :columns="taskColumns"
           :data-source="taskData"
           :loading="loading"
-          style="width: 800px"
+          style="width:40vw"
       >
         <template #bodyCell="{ column, text }">
           <template v-if="column.dataIndex === 'type'">{{ TASK_TYPE[text] }}</template>
@@ -28,7 +28,7 @@
     <div>
       <h2>调度列表</h2>
       <a-table
-          style="width: 800px"
+          style="width:40vw"
           :columns="schedulerColumns"
           :data-source="schedulerData"
           :loading="buttonLoading"

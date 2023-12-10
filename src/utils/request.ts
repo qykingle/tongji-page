@@ -2,12 +2,13 @@ import axios from 'axios'
 import type { AxiosRequestConfig, AxiosResponse } from 'axios'
 
 const request = axios.create({
-    baseURL: 'https://81.70.164.10:8750/',
+    baseURL: '//81.70.164.10:8750/',
 })
 
 export interface HttpOption {
     url: string
     data?: any
+    params?: any
     method?: string
     config?: AxiosRequestConfig
 }
@@ -19,10 +20,10 @@ export interface Response<T = any> {
 }
 
 function http<T = any>(
-    {url, data, method, config}: HttpOption,
+    {url, data, method, config, params}: HttpOption,
 ) {
     const successHandler = (res: AxiosResponse<Response<T>>) => {
-        if (res.data.status === 'Success' || typeof res.data === 'string')
+        if (res.data.code === 200)
             return res.data
         return Promise.reject(res.data)
     }
@@ -33,11 +34,19 @@ function http<T = any>(
 
     method = method || 'GET'
 
-    const params = Object.assign(typeof data === 'function' ? data() : data ?? {}, {})
+    if (method === 'GET') {
+        const params = Object.assign(typeof data === 'function' ? data() : data ?? {}, {})
+        return request.get(url, {params, ...config}).then(successHandler, failHandler)
+    }
 
-    return method === 'GET'
-        ? request.get(url, {params, ...config}).then(successHandler, failHandler)
-        : request.post(url, params, config).then(successHandler, failHandler)
+    if (method === 'POST') {
+        if (data) {
+            return request.post(url, data, config).then(successHandler, failHandler)
+        }
+        if (params) {
+            return request.post(url, null, {params, ...config}).then(successHandler, failHandler)
+        }
+    }
 }
 
 export function get<T = any>(
@@ -51,11 +60,12 @@ export function get<T = any>(
 }
 
 export function post<T = any>(
-    {url, data, method = 'POST'}: HttpOption,
+    {url, data, params, method = 'POST'}: HttpOption,
 ): Promise<Response<T>> {
     return http<T>({
         url,
         method,
+        params,
         data,
     })
 }
