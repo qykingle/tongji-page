@@ -39,7 +39,13 @@
           <a-button type="link" danger>删除</a-button>
         </a-popconfirm>
       </template>
-      <template v-if="column.dataIndex === 'date'">
+      <template v-else-if="column.dataIndex === 'attributes_values'">
+          <div v-for="(value, key) in record['attributes_values']" :key="value">
+            <span>{{ key }}：</span>
+            <span>{{ value }}</span>
+          </div>
+      </template>
+      <template v-else-if="column.dataIndex === 'date'">
         <span>2023/12/10 15:12:00</span>
       </template>
       <span v-else>

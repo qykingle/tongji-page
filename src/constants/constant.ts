@@ -51,7 +51,7 @@ export const taskColumns = [
         title: '任务属性',
         dataIndex: 'attributes_values',
         key: 'attributes_values',
-        ellipsis: true,
+        // ellipsis: true,
     },
     {
         title: '操作',
@@ -133,7 +133,7 @@ export const resourceColumns = [
         title: '资源属性',
         dataIndex: 'attributes_values',
         key: 'attributes_values',
-        ellipsis: true,
+        // ellipsis: true,
     },
     {
         title: '操作',
