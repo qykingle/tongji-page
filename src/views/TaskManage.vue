@@ -7,6 +7,12 @@
         </template>
         新增任务
       </a-button>
+      <a-button @click="addTaskByFile" type="primary">
+        <template #icon>
+          <PlusOutlined/>
+        </template>
+        文件上传任务
+      </a-button>
       <a-input-search
           allow-clear
           enter-button
@@ -120,6 +126,28 @@
       </a-form-item>
     </a-form>
   </a-drawer>
+
+  <a-drawer
+      v-model:open="taskFile"
+      title="文件上传任务"
+      size="large"
+      placement="right"
+  >
+
+  <a-upload
+    v-model:file-list="fileList"
+    name="file"
+    action="http://127.0.0.1:8750/task/createMultiTaskByFile"
+    :headers="headers"
+    @change="handleChange"
+  >
+    <a-button>
+      <upload-outlined></upload-outlined>
+      Click to Upload
+    </a-button>
+  </a-upload>
+   
+  </a-drawer>
 </template>
 <script setup lang="ts">
 import { onMounted, ref, reactive, watch, computed } from "vue";
@@ -132,10 +160,11 @@ import {
 } from "@/api/task";
 import { isSuccess } from "@/utils";
 import { message } from 'ant-design-vue';
-import { PlusOutlined } from '@ant-design/icons-vue';
-import type { FormInstance } from 'ant-design-vue';
+import type { UploadChangeParam } from 'ant-design-vue';
+import { PlusOutlined, InboxOutlined } from '@ant-design/icons-vue';
 import { taskColumns } from "@/constants/constant";
 import { useRouter } from "vue-router";
+
 
 const router = useRouter()
 
@@ -146,7 +175,24 @@ const dataType = ref<any[]>([]);
 const tableLoading = ref<boolean>(false);
 const submitLoading = ref<boolean>(false);
 const open = ref<boolean>(false);
+const taskFile = ref<boolean>(false);
 const taskId = ref()
+
+const handleChange = (info: UploadChangeParam) => {
+  if (info.file.status !== 'uploading') {
+    console.log(info.file, info.fileList);
+  }
+  if (info.file.status === 'done') {
+    message.success(`${info.file.name} file uploaded successfully`);
+  } else if (info.file.status === 'error') {
+    message.error(`${info.file.name} file upload failed.`);
+  }
+};
+
+const fileList = ref([]);
+const headers = {
+  authorization: 'authorization-text',
+};
 
 const taskTypeOptions = computed(() => {
   return taskTypeData.value.map(item => {
@@ -258,6 +304,11 @@ const getTaskTypeData = async () => {
 
 const addTask = () => {
   open.value = true;
+  getTaskTypeData()
+};
+
+const addTaskByFile = () => {
+  taskFile.value = true;
   getTaskTypeData()
 };
 
