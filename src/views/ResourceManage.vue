@@ -1,37 +1,31 @@
 <template>
   <div style="padding-bottom: 10px">
     <a-space>
-      <a-button @click="addTask" type="primary">
+      <a-button @click="addResource" type="primary">
         <template #icon>
           <PlusOutlined/>
         </template>
-        新增任务
-      </a-button>
-      <a-button @click="addTaskByFile" type="primary">
-        <template #icon>
-          <PlusOutlined/>
-        </template>
-        文件上传任务
+        新增资源
       </a-button>
       <a-input-search
           allow-clear
           enter-button
-          @search="fetchTaskData"
-          v-model:value="taskId"
+          @search="fetchResourceData"
+          v-model:value="resourceId"
           style="width: 200px"
-          placeholder="请输入任务类型ID"
+          placeholder="请输入资源类型ID"
       />
     </a-space>
   </div>
   <a-table
-      :columns="taskColumns"
-      :data-source="taskData"
+      :columns="resourceColumns"
+      :data-source="resourceData"
       :loading="tableLoading"
   >
     <template #bodyCell="{ column, text, record }">
       <template v-if="column.dataIndex === 'action'">
         <a-popconfirm
-            title="是否确认删除该任务？"
+            title="是否确认删除该资源？"
             ok-text="确认"
             cancel-text="取消"
             @confirm="()=> confirmDelete(record)"
@@ -55,7 +49,7 @@
   </a-table>
   <a-drawer
       v-model:open="open"
-      title="新增任务"
+      title="新增资源"
       size="large"
       placement="right"
   >
@@ -69,33 +63,33 @@
         :model="dynamicValidateForm"
     >
       <a-form-item
-          :rules="{required: true,message: '缺少任务名称',}"
-          label="任务名称" name="name">
+          :rules="{required: true,message: '缺少资源名称',}"
+          label="资源名称" name="name">
         <a-input
             v-model:value="dynamicValidateForm.name"
         />
       </a-form-item>
       <a-form-item
-          :rules="{required: true,message: '缺少任务描述',}"
-          label="任务描述" name="description">
+          :rules="{required: true,message: '缺少资源描述',}"
+          label="资源描述" name="description">
         <a-input
             v-model:value="dynamicValidateForm.description"
         />
       </a-form-item>
       <a-form-item
           name="type_id"
-          :rules="{required: true,message: '缺少任务属性类型',}"
-          label="任务类型"
+          :rules="{required: true,message: '缺少资源属性类型',}"
+          label="资源类型"
       >
         <a-select
             v-model:value="dynamicValidateForm.type_id"
-            :options="taskTypeOptions"
+            :options="resourceTypeOptions"
             @change="changeDataType"
-            placeholder="请选择任务属性类型"
+            placeholder="请选择资源属性类型"
         ></a-select>
       </a-form-item>
       <a-form-item
-          v-for="(item, index) in taskTypeAttributes"
+          v-for="(item, index) in resourceTypeAttributes"
           :key="index"
           :label="item.info"
           :name="['attributes_values', item.name]"
@@ -132,90 +126,50 @@
       </a-form-item>
     </a-form>
   </a-drawer>
-
-  <a-drawer
-      v-model:open="taskFile"
-      title="文件上传任务"
-      size="large"
-      placement="right"
-  >
-
-  <a-upload
-    v-model:file-list="fileList"
-    name="file"
-    action="http://127.0.0.1:8750/task/createMultiTaskByFile"
-    :headers="headers"
-    @change="handleChange"
-  >
-    <a-button>
-      <upload-outlined></upload-outlined>
-      Click to Upload
-    </a-button>
-  </a-upload>
-   
-  </a-drawer>
 </template>
 <script setup lang="ts">
 import { onMounted, ref, reactive, watch, computed } from "vue";
 import {
-  createTask,
-  deleteTask,
+  createResource,
+  deleteResource,
   fetchAllDataType,
-  fetchAllTasks,
-  fetchAllTaskType, fetchTask
-} from "@/api/task";
+  fetchAllResources,
+  fetchAllResourceType, fetchResource
+} from "@/api/resource";
 import { isSuccess } from "@/utils";
 import { message } from 'ant-design-vue';
-import type { UploadChangeParam } from 'ant-design-vue';
-import { PlusOutlined, InboxOutlined } from '@ant-design/icons-vue';
-import { taskColumns } from "@/constants/constant";
+import { PlusOutlined } from '@ant-design/icons-vue';
+import type { FormInstance } from 'ant-design-vue';
+import { resourceColumns } from "@/constants/constant";
 import { useRouter } from "vue-router";
-
 
 const router = useRouter()
 
 
-const taskData = ref<any[]>([]);
-const taskTypeData = ref<any[]>([]);
+const resourceData = ref<any[]>([]);
+const resourceTypeData = ref<any[]>([]);
 const dataType = ref<any[]>([]);
 const tableLoading = ref<boolean>(false);
 const submitLoading = ref<boolean>(false);
 const open = ref<boolean>(false);
-const taskFile = ref<boolean>(false);
-const taskId = ref()
+const resourceId = ref()
 
-const handleChange = (info: UploadChangeParam) => {
-  if (info.file.status !== 'uploading') {
-    console.log(info.file, info.fileList);
-  }
-  if (info.file.status === 'done') {
-    message.success(`${info.file.name} file uploaded successfully`);
-  } else if (info.file.status === 'error') {
-    message.error(`${info.file.name} file upload failed.`);
-  }
-};
-
-const fileList = ref([]);
-const headers = {
-  authorization: 'authorization-text',
-};
-
-const taskTypeOptions = computed(() => {
-  return taskTypeData.value.map(item => {
+const resourceTypeOptions = computed(() => {
+  return resourceTypeData.value.map(item => {
     return {
-      label: item.task_type.name,
-      value: item.task_type.id
+      label: item.resource_type.name,
+      value: item.resource_type.id
     }
   })
 })
 
-const taskTypeAttributes = computed(() => {
-  const taskType = taskTypeData.value.find(item => item.task_type.id === dynamicValidateForm.type_id)
-  return taskType?.attributes || []
+const resourceTypeAttributes = computed(() => {
+  const resourceType = resourceTypeData.value.find(item => item.resource_type.id === dynamicValidateForm.type_id)
+  return resourceType?.attributes || []
 })
 
 
-interface TaskType {
+interface ResourceType {
   name: string;
   description: string;
   type_id: '',
@@ -223,7 +177,7 @@ interface TaskType {
 }
 
 const formRef = ref<FormInstance>();
-const dynamicValidateForm = reactive<TaskType>({
+const dynamicValidateForm = reactive<ResourceType>({
   name: '',
   description: '',
   type_id: undefined,
@@ -266,36 +220,36 @@ const changeDataType = (value) => {
   console.log(value)
 }
 
-const getAllTaskData = async () => {
+const getAllResourceData = async () => {
   tableLoading.value = true;
-  const result = await fetchAllTasks().catch(e => e);
+  const result = await fetchAllResources().catch(e => e);
   tableLoading.value = false;
   if (!isSuccess(result)) {
     return message.error(result.message || '请求失败');
   }
-  taskData.value = result.data
+  resourceData.value = result.data
 };
 
-const fetchTaskData = async () => {
-  if (!taskId.value) return getAllTaskData()
+const fetchResourceData = async () => {
+  if (!resourceId.value) return getAllResourceData()
   tableLoading.value = true;
-  const result = await fetchTask(taskId.value).catch(e => e);
+  const result = await fetchResource(resourceId.value).catch(e => e);
   tableLoading.value = false;
   if (!isSuccess(result)) {
     return message.error(result.message || '请求失败');
   }
-  taskData.value = result.data
+  resourceData.value = result.data
 };
 
-const getTaskTypeData = async () => {
+const getResourceTypeData = async () => {
   tableLoading.value = true;
-  const result = await fetchAllTaskType().catch(e => e);
-  await getTaskDataType().catch(e => e);
+  const result = await fetchAllResourceType().catch(e => e);
+  await getResourceDataType().catch(e => e);
   tableLoading.value = false;
   if (!isSuccess(result)) {
     return message.error(result.message || '请求失败');
   }
-  taskTypeData.value = result.data?.map(item => {
+  resourceTypeData.value = result.data?.map(item => {
     item.attributes = item.attributes.map(attribute => {
       const dataTypeItem = dataType.value.find(dataTypeItem => dataTypeItem.id === attribute.data_type)
       return {
@@ -305,17 +259,12 @@ const getTaskTypeData = async () => {
     })
     return item
   })
-  console.log(taskTypeData.value)
+  console.log(resourceTypeData.value)
 };
 
-const addTask = () => {
+const addResource = () => {
   open.value = true;
-  getTaskTypeData()
-};
-
-const addTaskByFile = () => {
-  taskFile.value = true;
-  getTaskTypeData()
+  getResourceTypeData()
 };
 
 const onClose = () => {
@@ -333,7 +282,7 @@ const submit = async () => {
     type_id,
     attributes_values
   }
-  const submitResult = await createTask(data).catch(e => e);
+  const submitResult = await createResource(data).catch(e => e);
   if (!isSuccess(submitResult)) {
     submitLoading.value = false;
     return message.error(submitResult.message || '请求失败');
@@ -341,10 +290,10 @@ const submit = async () => {
   submitLoading.value = false;
   open.value = false;
   message.success('新增成功')
-  getAllTaskData()
+  getAllResourceData()
 };
 
-const getTaskDataType = async () => {
+const getResourceDataType = async () => {
   const result = await fetchAllDataType().catch(e => e);
   if (!isSuccess(result)) {
     return message.error(result.message || '请求失败');
@@ -353,23 +302,23 @@ const getTaskDataType = async () => {
 }
 
 const confirmDelete = async ({id}) => {
-  const result = await deleteTask(id).catch(e => e);
+  const result = await deleteResource(id).catch(e => e);
   if (!isSuccess(result)) {
     return message.error(result.message || '请求失败');
   }
   message.success('删除成功')
-  getAllTaskData()
+  getAllResourceData()
 }
 
 
 onMounted(() => {
   console.log(router.currentRoute.value)
   const {query} = router.currentRoute.value || {}
-  if (query.task_type_id) {
-    taskId.value = query.task_type_id
-    fetchTaskData()
+  if (query.resource_type_id) {
+    resourceId.value = query.resource_type_id
+    fetchResourceData()
   } else {
-    getAllTaskData();
+    getAllResourceData();
   }
 });
 
