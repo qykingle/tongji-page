@@ -83,3 +83,10 @@ export const deleteDataType = (data_type_id)=>{
         }
     })
 }
+
+export const addTaskToResource = (data)=>{
+    return post({
+        url: '/relation/addTaskToResource',
+        data
+    })
+}

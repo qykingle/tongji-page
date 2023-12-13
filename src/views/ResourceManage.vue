@@ -7,14 +7,15 @@
         </template>
         新增资源
       </a-button>
-      <a-input-search
-          allow-clear
-          enter-button
-          @search="fetchResourceData"
+      选择任务类型：
+      <a-select
           v-model:value="resourceId"
-          style="width: 200px"
-          placeholder="请输入资源类型ID"
-      />
+          style="width: 180px"
+          @change="fetchResourceData"
+          allow-clear
+          :options="resourceTypeOptions"
+      >
+      </a-select>
     </a-space>
   </div>
   <a-table
@@ -315,11 +316,12 @@ onMounted(() => {
   console.log(router.currentRoute.value)
   const {query} = router.currentRoute.value || {}
   if (query.resource_type_id) {
-    resourceId.value = query.resource_type_id
+    resourceId.value = Number( query.resource_type_id)
     fetchResourceData()
   } else {
     getAllResourceData();
   }
+  getResourceTypeData()
 });
 
 watch(

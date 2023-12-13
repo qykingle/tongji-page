@@ -13,14 +13,23 @@
         </template>
         文件上传任务
       </a-button>
-      <a-input-search
-          allow-clear
-          enter-button
-          @search="fetchTaskData"
+<!--      <a-input-search-->
+<!--          allow-clear-->
+<!--          enter-button-->
+<!--          @search="fetchTaskData"-->
+<!--          v-model:value="taskId"-->
+<!--          style="width: 200px"-->
+<!--          placeholder="请输入任务类型ID"-->
+<!--      />-->
+      选择任务类型：
+      <a-select
           v-model:value="taskId"
-          style="width: 200px"
-          placeholder="请输入任务类型ID"
-      />
+          style="width: 180px"
+          @change="fetchTaskData"
+          allow-clear
+          :options="taskTypeOptions"
+      >
+      </a-select>
     </a-space>
   </div>
   <a-table
@@ -152,7 +161,7 @@
       Click to Upload
     </a-button>
   </a-upload>
-   
+
   </a-drawer>
 </template>
 <script setup lang="ts">
@@ -165,7 +174,7 @@ import {
   fetchAllTaskType, fetchTask
 } from "@/api/task";
 import { isSuccess } from "@/utils";
-import { message } from 'ant-design-vue';
+import { FormInstance, message } from 'ant-design-vue';
 import type { UploadChangeParam } from 'ant-design-vue';
 import { PlusOutlined, InboxOutlined } from '@ant-design/icons-vue';
 import { taskColumns } from "@/constants/constant";
@@ -365,8 +374,9 @@ const confirmDelete = async ({id}) => {
 onMounted(() => {
   console.log(router.currentRoute.value)
   const {query} = router.currentRoute.value || {}
+  getTaskTypeData();
   if (query.task_type_id) {
-    taskId.value = query.task_type_id
+    taskId.value = Number(query.task_type_id)
     fetchTaskData()
   } else {
     getAllTaskData();

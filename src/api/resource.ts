@@ -83,3 +83,17 @@ export const deleteDataType = (data_type_id)=>{
         }
     })
 }
+export const fetchTasksByResource = (resource_id)=>{
+    return get({
+        url: '/relation/fetchTasksByResource',
+        data: {
+            resource_id
+        }
+    })
+}
+export const deleteTaskFromResource = (data)=>{
+    return post({
+        url: '/relation/deleteTaskFromResource',
+        data
+    })
+}

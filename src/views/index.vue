@@ -48,7 +48,7 @@ const removeHomeRoutes = routesConfig.filter(item => item.name !== 'home')
 
 const router = useRouter()
 const IconFont = createFromIconfontCN({
-  scriptUrl: '//at.alicdn.com/t/c/font_4366479_nwn7pbrbzjo.js',
+  scriptUrl: '//at.alicdn.com/t/c/font_4366479_k6ckzmt4a6o.js',
 });
 
 watch(

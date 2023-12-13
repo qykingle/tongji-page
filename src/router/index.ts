@@ -46,7 +46,7 @@ export const routesConfig = [
         name: 'resource',
         meta: {
             title: '资源管理',
-            icon: 'icon-task-manage'
+            icon: 'icon-dingjiaziyuanwei'
         },
         children: [
             {
@@ -72,11 +72,11 @@ export const routesConfig = [
         name: 'algorithm',
         meta: {
             title: '算法管理',
-            icon: 'icon-task-manage'
+            icon: 'icon-suanfayanshi'
         },
         children: [
-            {   
-                path: '/algorithm/docker',
+            {
+                path: '/algorithm/algorithmDocker',
                 name: 'algorithmDocker',
                 component: AlgorithmDocker,
                 meta: {
@@ -84,23 +84,23 @@ export const routesConfig = [
                 }
             },
             {
-                path: '/algorithm/image',
+                path: '/algorithm/algorithmImage',
                 name: 'algorithmImage',
                 component: AlgorithmImage,
                 meta: {
                     title: '算法镜像',
-                } 
+                }
             },
             {
-                path: '/algorithm/scheduler',
+                path: '/algorithm/algorithmScheduler',
                 name: 'algorithmScheduler',
                 component: AlgorithmScheduler,
                 meta: {
                     title: '调度运行',
-                } 
+                }
             }
         ],
-    }, 
+    },
     {
         path: '/log',
         name: 'log',
