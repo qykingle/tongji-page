@@ -1,15 +1,15 @@
 <template>
   <div style="display: flex; justify-content: space-around">
     <div style="width: 45%">
-      选择任务：
+      选择任务类型：
       <a-select
           v-model:value="taskId"
           style="width: 180px"
-          @change="getTaskData"
+          @change="fetchTaskData"
           allow-clear
           showSearch
-          mode="multiple"
-          :options="taskOptions"
+          optionFilterProp="label"
+          :options="taskTypeOptions"
       >
       </a-select>
       <a-table
@@ -35,15 +35,15 @@
       </a-table>
     </div>
     <div style="width: 45%">
-      选择资源：
+      选择资源类型：
       <a-select
           v-model:value="resourceId"
           style="width: 180px"
-          @change="getResourceData"
+          @change="fetchResourceData"
           allow-clear
           showSearch
-          mode="multiple"
-          :options="resourceOptions"
+          optionFilterProp="label"
+          :options="resourceTypeOptions"
       >
       </a-select>
       <a-table
@@ -77,6 +77,7 @@
         @change="getResourceData"
         allow-clear
         showSearch
+        optionFilterProp="label"
         :options="resourceOptions"
     >
     </a-select>
@@ -117,11 +118,17 @@
 <script lang="ts" setup>
 import { resourceColumns, taskColumns } from "@/constants/constant";
 import { computed, onMounted, ref } from "vue";
-import { addTaskToResource, fetchAllTasks } from "@/api/task";
+import { addTaskToResource, fetchAllTasks, fetchAllTaskType, fetchTask } from "@/api/task";
 import { isSuccess } from "@/utils";
 import { message } from "ant-design-vue";
 import { cloneDeep, isEmpty } from 'lodash'
-import { deleteTaskFromResource, fetchAllResources, fetchTasksByResource } from "@/api/resource";
+import {
+  deleteTaskFromResource,
+  fetchAllResources,
+  fetchAllResourceType,
+  fetchResource,
+  fetchTasksByResource
+} from "@/api/resource";
 
 const tableLoading = ref<boolean>(false);
 const resourceTableLoading = ref<boolean>(false);
@@ -129,7 +136,6 @@ const resourceData = ref<any[]>([]);
 const taskData = ref<any[]>([]);
 const connectTaskData = ref<any[]>([]);
 const connectTaskLoading = ref<boolean>(false);
-const initTaskData = ref<any[]>([]);
 const initResourceData = ref<any[]>([]);
 const taskId = ref<number>();
 const resourceId = ref<number>();
@@ -138,15 +144,9 @@ const selectedTaskId = ref<number>();
 const open = ref<boolean>(false);
 const connectOpen = ref<boolean>(false);
 const modifyConnectTaskId = ref<number>();
+const taskTypeOptions = ref<any[]>([]);
+const resourceTypeOptions = ref<any[]>([]);
 
-const taskOptions = computed(() => {
-  return initTaskData.value.map(item => {
-    return {
-      label: item.name,
-      value: item.id
-    }
-  })
-})
 const resourceOptions = computed(() => {
   return initResourceData.value.map(item => {
     return {
@@ -156,6 +156,38 @@ const resourceOptions = computed(() => {
   })
 })
 
+const getTaskTypeData = async () => {
+  tableLoading.value = true;
+  const result = await fetchAllTaskType().catch(e => e);
+  tableLoading.value = false;
+  if (!isSuccess(result)) {
+    return message.error(result.message || '请求失败');
+  }
+  taskTypeOptions.value = result.data?.map(item =>{
+    const {task_type} = item
+    return {
+      label: task_type.name,
+      value: task_type.id
+    }
+  })
+};
+
+const getResourceTypeData = async () => {
+  tableLoading.value = true;
+  const result = await fetchAllResourceType().catch(e => e);
+  tableLoading.value = false;
+  if (!isSuccess(result)) {
+    return message.error(result.message || '请求失败');
+  }
+  resourceTypeOptions.value = result.data?.map(item => {
+    const {resource_type} = item
+    return {
+      label: resource_type.name,
+      value: resource_type.id
+    }
+  })
+};
+
 const getAllTaskData = async () => {
   tableLoading.value = true;
   const result = await fetchAllTasks().catch(e => e);
@@ -164,13 +196,34 @@ const getAllTaskData = async () => {
     return message.error(result.message || '请求失败');
   }
   taskData.value = result.data
-  initTaskData.value = cloneDeep(result.data)
 };
 
-const getAllResourceData = async () => {
+const fetchTaskData = async () => {
+  if (!taskId.value) return getAllTaskData()
   tableLoading.value = true;
-  const result = await fetchAllResources().catch(e => e);
+  const result = await fetchTask(taskId.value).catch(e => e);
   tableLoading.value = false;
+  if (!isSuccess(result)) {
+    return message.error(result.message || '请求失败');
+  }
+  taskData.value = result.data
+};
+
+// const getAllResourceData = async () => {
+//   tableLoading.value = true;
+//   const result = await fetchAllResources().catch(e => e);
+//   tableLoading.value = false;
+//   if (!isSuccess(result)) {
+//     return message.error(result.message || '请求失败');
+//   }
+//   resourceData.value = result.data
+//   initResourceData.value = cloneDeep(result.data)
+// };
+
+const getAllResourceData = async () => {
+  resourceTableLoading.value = true;
+  const result = await fetchAllResources().catch(e => e);
+  resourceTableLoading.value = false;
   if (!isSuccess(result)) {
     return message.error(result.message || '请求失败');
   }
@@ -178,13 +231,17 @@ const getAllResourceData = async () => {
   initResourceData.value = cloneDeep(result.data)
 };
 
-const getTaskData = (data) => {
-  if (isEmpty(data)) {
-    taskData.value = initTaskData.value
-    return
+const fetchResourceData = async () => {
+  if (!resourceId.value) return getAllResourceData()
+  resourceTableLoading.value = true;
+  const result = await fetchResource(resourceId.value).catch(e => e);
+  resourceTableLoading.value = false;
+  if (!isSuccess(result)) {
+    return message.error(result.message || '请求失败');
   }
-  taskData.value = initTaskData.value.filter(item => data.includes(item.id))
-}
+  resourceData.value = result.data
+};
+
 
 const getResourceData = (data) => {
   if (isEmpty(data)) {
@@ -238,8 +295,10 @@ const unConnect = async ({id})=> {
 }
 
 onMounted(() => {
-  getAllTaskData();
+  fetchTaskData();
+  getTaskTypeData()
   getAllResourceData();
+  getResourceTypeData();
 });
 
 </script>
